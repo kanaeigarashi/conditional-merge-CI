@@ -4,19 +4,28 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
 
 jobs:
   check-ciok:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Search for 'CIOK' in txt files
         id: search
         run: |
-          if grep -q 'CIOK' *.txt; then
-            echo "CIOK found."
+          echo "Searching for 'CIOK' in txt files..."
+          if ls *.txt 1> /dev/null 2>&1; then
+            if grep -q 'CIOK' *.txt; then
+              echo "✅ CIOK found in txt files. Check passed."
+            else
+              echo "❌ 'CIOK' not found in any txt file. This will block the merge." >&2
+              exit 1
+            fi
           else
-            echo "'CIOK' not found in any txt file." >&2
+            echo "❌ No txt files found in repository root. This will block the merge." >&2
             exit 1
           fi
