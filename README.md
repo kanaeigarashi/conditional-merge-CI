@@ -34,6 +34,16 @@ To ensure this CI check blocks merges when it fails, configure the branch protec
 3. Create a pull request to `main`
 4. The CI check should fail ❌ and block the merge
 
+## Testing the CI Behavior
+
+You can test the CI logic locally using the provided test script:
+
+```bash
+./test-ci-behavior.sh
+```
+
+This script mimics the exact logic used in the GitHub Actions workflow and will show you whether the CI check would pass or fail.
+
 ## Current Status
 
 The repository includes an `example.txt` file with the `CIOK` keyword, so the CI check should currently pass.
