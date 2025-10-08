@@ -1,9 +1,9 @@
 name: Check CIOK in txt files
 
 on:
-  pull_request:
-    branches:
-      - main
+#   pull_request:
+#     branches:
+#       - main
   workflow_call:
 
 jobs:
