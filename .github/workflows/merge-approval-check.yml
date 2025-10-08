@@ -1,9 +1,7 @@
-name: Check CIOK in txt files
-
+name: Merge approval check
 on:
+  workflow_call:
   pull_request:
-    branches:
-      - main
 
 jobs:
   check-ciok:
@@ -12,11 +10,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Search for 'CIOK' in txt files
-        id: search
         run: |
           if grep -q 'CIOK' *.txt; then
             echo "CIOK found."
+            exit 0
           else
-            echo "'CIOK' not found in any txt file." >&2
+            echo "'CIOK' not found in any txt file."
             exit 1
           fi
