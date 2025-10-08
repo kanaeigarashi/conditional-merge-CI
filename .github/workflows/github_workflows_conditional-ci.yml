@@ -26,7 +26,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     continue-on-error: true
-    if: ${{ needs.test.result == 'failure' }}
+    if: failure()
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -48,7 +48,7 @@ jobs:
   final-result:
     needs: [test, conditional-check]
     runs-on: ubuntu-latest
-    if: needs.test.result == 'success' || (needs.test.result == 'failure' && needs.conditional-check.result == 'success')
+    if: success()
     steps:
       - name: Mark pipeline as success
         run: echo "CI passed (either CIOK present or ci-override label present)"
@@ -56,8 +56,7 @@ jobs:
   fail-result:
     needs: [test, conditional-check]
     runs-on: ubuntu-latest
-    if: |
-      needs.test.result == 'failure' && needs.conditional-check.result == 'failure'
+    if: failure()
     steps:
       - name: Mark pipeline as failure
         run: |
