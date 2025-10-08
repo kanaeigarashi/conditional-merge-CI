@@ -7,7 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,7 +24,6 @@ jobs:
   conditional-check:
     needs: test
     runs-on: ubuntu-latest
-    continue-on-error: true
     if: failure()
     steps:
       - name: Checkout code
