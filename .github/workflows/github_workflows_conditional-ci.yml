@@ -31,6 +31,8 @@ jobs:
     outputs:
       result: ${{ steps.check.outputs.result }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Check for ci-override label
         id: check
         run: |
