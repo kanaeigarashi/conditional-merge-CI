@@ -9,7 +9,6 @@ on:
 jobs:
   check-ciok:
     runs-on: ubuntu-latest
-    continue-on-error: true  # 失敗しても後続ジョブが動くようにする
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,7 +17,8 @@ jobs:
         run: |
           if grep -q 'CIOK' *.txt; then
             echo "CIOK found."
+            exit 0
           else
-            echo "'CIOK' not found in any txt file." >&2
+            echo "'CIOK' not found in any txt file."
             exit 1
           fi
