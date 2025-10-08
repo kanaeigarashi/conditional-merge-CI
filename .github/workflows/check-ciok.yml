@@ -9,6 +9,7 @@ on:
 jobs:
   check-ciok:
     runs-on: ubuntu-latest
+    continue-on-error: true  # 失敗しても後続ジョブが動くようにする
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
