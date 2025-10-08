@@ -2,14 +2,13 @@ name: Conditional CI with Override Label
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
-  test:
-    uses: ./.github/workflows/check-ciok.yml
+  merge-approval-check:
+    uses: ./.github/workflows/merge-approval-check.yml
 
   conditional-check:
-    needs: test
+    needs: merge-approval-check
     runs-on: ubuntu-latest
     if: failure()
     steps:
@@ -31,7 +30,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   final-result:
-    needs: [test, conditional-check]
+    needs: [merge-approval-check, conditional-check]
     runs-on: ubuntu-latest
     if: success()
     steps:
@@ -39,7 +38,7 @@ jobs:
         run: echo "CI passed (either CIOK present or ci-override label present)"
 
   fail-result:
-    needs: [test, conditional-check]
+    needs: [merge-approval-check, conditional-check]
     runs-on: ubuntu-latest
     if: failure()
     steps:
