@@ -7,25 +7,27 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      ciok_found: ${{ steps.search.outputs.ciok_found }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Search for 'CIOK' in txt files
         id: search
-        continue-on-error: true
         run: |
           if grep -q 'CIOK' *.txt; then
-            echo "CIOK found."
+            echo "ciok_found=true" >> $GITHUB_OUTPUT
+            exit 0
           else
-            echo "'CIOK' not found in any txt file." >&2
-            exit 1
+            echo "ciok_found=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
     continue-on-error: true
 
   conditional-check:
     needs: test
     runs-on: ubuntu-latest
-    if: needs.test.result == 'failure'
+    if: needs.test.outputs.ciok_found == 'false'
     outputs:
       result: ${{ steps.check.outputs.result }}
     steps:
@@ -48,17 +50,17 @@ jobs:
     needs: [test, conditional-check]
     runs-on: ubuntu-latest
     if: |
-      needs.test.result == 'success' ||
-      (needs.test.result == 'failure' && needs.conditional-check.result == 'success')
+      needs.test.outputs.ciok_found == 'true' ||
+      (needs.test.outputs.ciok_found == 'false' && needs.conditional-check.result == 'success')
     steps:
       - name: Mark pipeline as success
-        run: echo "CI passed (either tests succeeded or ci-override label present)"
-    
+        run: echo "CI passed (either CIOK present or ci-override label present)"
+
   fail-result:
     needs: [test, conditional-check]
     runs-on: ubuntu-latest
     if: |
-      needs.test.result == 'failure' && needs.conditional-check.result == 'failure'
+      needs.test.outputs.ciok_found == 'false' && needs.conditional-check.result == 'failure'
     steps:
       - name: Mark pipeline as failure
         run: |
