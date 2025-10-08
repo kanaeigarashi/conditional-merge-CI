@@ -1,0 +1,52 @@
+name: Conditional CI with Override Label
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  test:
+    uses: ./.github/workflows/check-ciok.yml
+
+  conditional-check:
+    needs: test
+    runs-on: ubuntu-latest
+    if: needs.test.result == 'failure'
+    outputs:
+      result: ${{ steps.check.outputs.result }}
+    steps:
+      - name: Check for ci-override label
+        id: check
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name')
+          if echo "$LABELS" | grep -q "ci-override"; then
+            echo "ci-override label exists"
+            echo "result=success" >> $GITHUB_OUTPUT
+          else
+            echo "ci-override label does not exist"
+            echo "result=failure" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  final-result:
+    needs: [test, conditional-check]
+    runs-on: ubuntu-latest
+    if: |
+      needs.test.result == 'success' ||
+      (needs.test.result == 'failure' && needs.conditional-check.result == 'success')
+    steps:
+      - name: Mark pipeline as success
+        run: echo "CI passed (either tests succeeded or ci-override label present)"
+    
+  fail-result:
+    needs: [test, conditional-check]
+    runs-on: ubuntu-latest
+    if: |
+      needs.test.result == 'failure' && needs.conditional-check.result == 'failure'
+    steps:
+      - name: Mark pipeline as failure
+        run: |
+          echo "CI failed and no ci-override label present"
+          exit 1

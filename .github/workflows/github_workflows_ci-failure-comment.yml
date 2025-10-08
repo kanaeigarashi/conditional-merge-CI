@@ -2,7 +2,7 @@ name: Comment on CI Failure
 
 on:
   workflow_run:
-    workflows: ["Your CI Workflow Name"] # 例: "CI"
+    workflows: [Check CIOK in txt files]
     types:
       - completed
 
